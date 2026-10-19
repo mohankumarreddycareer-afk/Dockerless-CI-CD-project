@@ -2,10 +2,6 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQubeScanner 'SonarScanner'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,20 +11,23 @@ pipeline {
 
         stage('Python Version') {
             steps {
-                bat 'python --version'
+                sh 'python3 --version'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'python -m unittest -v test_app.py'
+                sh 'python3 -m unittest -v test_app.py'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    bat 'sonar-scanner'
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
         }
